@@ -4,12 +4,6 @@
 #include "UBlockModel.h"
 #include "Kismet/KismetStringLibrary.h"
 
-void UBlockModel::SetBlockMaterial(UMaterialInstance* Material)
-{
-	BlockMaterial = Material;
-	// update material for each actor?
-}
-
 // TODO: validation (see if required columns exist)
 void UBlockModel::ImportBlockModel(FString Path, FVector UTMRef)
 {
@@ -23,15 +17,10 @@ void UBlockModel::ImportBlockModel(FString Path, FVector UTMRef)
 		Columns[i] = Columns[i].ToLower();
 	}
 	
-	// Find which column id is
-	const unsigned int IdIndex = Columns.Find("id");
-	if (IdIndex == INDEX_NONE) return;
-
 	// Populate property values
 	for (int i = 1; i < Rows.Num(); i++)
 	{
 		TArray<FString> Values = UKismetStringLibrary::ParseIntoArray(Rows[i], ",");
-		int Id = FCString::Atoi(*Values[IdIndex]);
 		
 		ABlockModelActor* BlockActor = GetWorld()->SpawnActor<ABlockModelActor>(
 			FVector(0.0, 0.0,0.0),
@@ -41,52 +30,62 @@ void UBlockModel::ImportBlockModel(FString Path, FVector UTMRef)
 		FBlockProperties Properties;
 		for (int j = 0; j < Columns.Num(); j++)
 		{
-			if (j == IdIndex) continue;
-			
 			FString ColName = Columns[j];
 			float Value = FCString::Atof(*Values[j]);
 			
 			// populate actor dimensions and centroid
 			if (ColName.Equals("x"))
 			{
-				BlockActor->Centroid.Y = Value - UTMRef.X;
+				BlockActor->Centroid.Y = (Value - UTMRef.X) * 100.0f;
 				continue;	
 			}
 			if (ColName.Equals("y"))
 			{
-				BlockActor->Centroid.X = Value - UTMRef.Y;
+				BlockActor->Centroid.X = (Value - UTMRef.Y) * 100.0f;
 				continue;
 			}
 			if (ColName.Equals("z"))
 			{
-				BlockActor->Centroid.Z = Value - UTMRef.Z;
+				BlockActor->Centroid.Z = (Value - UTMRef.Z) * 100.0f;
 				continue;
 			}
 			if (ColName.Equals("dx"))
 			{
-				BlockActor->Dimensions.Y = Value;
+				BlockActor->Dimensions.Y = Value * 100.0f;
 				continue;
 			}
 			if (ColName.Equals("dy"))
 			{
-				BlockActor->Dimensions.X = Value;
+				BlockActor->Dimensions.X = Value * 100.0f;
 				continue;
 			}
 			if (ColName.Equals("dz"))
 			{
-				BlockActor->Dimensions.Z = Value;
+				BlockActor->Dimensions.Z = Value * 100.0f;
 				continue;
 			}
-			
+
 			Properties.PropertyMap.Add(ColName, Value);
+
+			// add to property min and max map (for visualization)
+			if (i == 1)
+			{
+				PropertyMin.Add(ColName, Value);
+				PropertyMax.Add(ColName, Value);
+			}
+
+			// update property min and max map (for visualization)
+			if (PropertyMin.Find(ColName) && *PropertyMin.Find(ColName) > Value)
+				PropertyMin.Add(ColName, Value);
+			if (PropertyMax.Find(ColName) && *PropertyMax.Find(ColName) < Value)
+				PropertyMax.Add(ColName, Value);
 		}
 
 		// add actor and properties to maps
-		Blocks.Add(Id, BlockActor);
-		BlockProperties.Add(Id, Properties);
+		Blocks.Add(BlockActor);
+		BlockProperties.Add(Properties);
 
 		// Generate mesh for block actor
-		BlockActor->Id = Id;
 		BlockActor->Material = BlockMaterial;
 		BlockActor->GenerateMesh();
 	}

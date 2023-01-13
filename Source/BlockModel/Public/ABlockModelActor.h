@@ -16,9 +16,6 @@ class BLOCKMODEL_API ABlockModelActor : public ARuntimeMeshActor
 
 public:
 	ABlockModelActor();
-
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	int Id;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInterface* Material;

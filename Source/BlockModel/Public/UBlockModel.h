@@ -10,12 +10,13 @@
 /**
  * 
  */
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FBlockProperties
 {
 	GENERATED_BODY()
 
 	// map from property column name to property value
+	UPROPERTY(BlueprintReadOnly)
 	TMap<FString, float> PropertyMap;
 };
 
@@ -27,18 +28,25 @@ class BLOCKMODEL_API UBlockModel : public UObject
 public:
 	// map from block ID to actor
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	TMap<int,ABlockModelActor*> Blocks;
+	TArray<ABlockModelActor*> Blocks;
 
+	// Min and max of properties
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite)
+	FString SelectedProperty = "";
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TMap<FString, float> PropertyMin;
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TMap<FString, float> PropertyMax;
+	
 	// map from block ID to property list
-	UPROPERTY()
-	TMap<int,FBlockProperties> BlockProperties;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TArray<FBlockProperties> BlockProperties;
 
 	// default material instance (can be edited in runtime based on properties)
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	UMaterialInstance* BlockMaterial;
-
-	UFUNCTION(BlueprintCallable)
-	void SetBlockMaterial(UMaterialInstance* Material);
 	
 private:
 	// spawns blocks
