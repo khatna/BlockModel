@@ -7,17 +7,20 @@
 #include "ABlockModelActor.h"
 #include "UBlockModel.generated.h"
 
-/**
- * 
- */
 USTRUCT(BlueprintType)
-struct FBlockProperties
+struct FBlock
 {
 	GENERATED_BODY()
+	
+	UPROPERTY()
+	FVector Centroid;
 
-	// map from property column name to property value
-	UPROPERTY(BlueprintReadOnly)
-	TMap<FString, float> PropertyMap;
+	UPROPERTY()
+	FVector Dimension;
+
+	UPROPERTY()
+	TMap<FString, FString> HeaderVals;
+	
 };
 
 UCLASS(Blueprintable,BlueprintType)
@@ -26,30 +29,38 @@ class BLOCKMODEL_API UBlockModel : public UObject
 	GENERATED_BODY()
 	
 public:
-	// map from block ID to actor
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	TArray<ABlockModelActor*> Blocks;
+	UPROPERTY(VisibleAnywhere,BlueprintReadonly)
+	TArray<FBlock> Blocks;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TArray<FString> Headers;
+
+	// map from column value to RMC block group
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TMap<FString,ABlockModelActor*> BlockGroups;
+	
 	// Min and max of properties
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite)
 	FString SelectedProperty = "";
-	
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	TMap<FString, float> PropertyMin;
-	
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	TMap<FString, float> PropertyMax;
-	
-	// map from block ID to property list
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	TArray<FBlockProperties> BlockProperties;
 
 	// default material instance (can be edited in runtime based on properties)
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	UMaterialInstance* BlockMaterial;
-	
+
+	// hide the block model from render
+	UFUNCTION(BlueprintCallable)
+	void HideBlockModel();
+
+	// called after re-selecting property. delegates postprocessing (like colors)
+	// to blueprints
+	UFUNCTION(BlueprintImplementableEvent)
+	void PostprocessBlocks();
 private:
-	// spawns blocks
+	// imports block model data
 	UFUNCTION(BlueprintCallable)
 	void ImportBlockModel(FString Path, FVector UTMRef);
+	
+	// select a new property and regenerate block RMCs
+	UFUNCTION(BlueprintCallable)
+	void SelectProperty(FString Property);
 };

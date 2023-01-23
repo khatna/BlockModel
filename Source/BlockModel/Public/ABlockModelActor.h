@@ -21,10 +21,13 @@ public:
 	UMaterialInterface* Material;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	FVector Centroid;
+	TArray<FVector> Centroids;
 	
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	FVector Dimensions;
+	TArray<FVector> Dimensions;
+
+	UFUNCTION()
+	void AddBlock(FVector Centroid, FVector Dimension);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient)
