@@ -22,11 +22,6 @@ void ABlockModelActor::GenerateMesh()
 {
 	GetRuntimeMeshComponent()->Initialize(StaticProvider);
 	StaticProvider->ClearSection(0, 0);
-
-	FVector AllPos[6][4] = {
-		
-	}
-
 	
 	TArray<FVector> Positions;
 	TArray<FVector> Normals;
@@ -63,10 +58,10 @@ void ABlockModelActor::GenerateMesh()
 				if (sign == 1) Triangles.Append({ Offset, Offset+3, Offset+2, Offset, Offset+1, Offset+3 });
 				else           Triangles.Append({ Offset, Offset+2, Offset+3, Offset, Offset+3, Offset+1 });
 			}
-		
-		// Create RMC section
-		const TArray<FColor> EmptyColors{};
-		StaticProvider->CreateSectionFromComponents(0, 0, 0, Positions, Triangles, Normals, TexCoords, EmptyColors, Tangents, ERuntimeMeshUpdateFrequency::Infrequent, false);
-		StaticProvider->SetupMaterialSlot(0, TEXT("BIM Material"), Material);
 	}
+	
+	// Create RMC section
+	const TArray<FColor> EmptyColors{};
+	StaticProvider->CreateSectionFromComponents(0, 0, 0, Positions, Triangles, Normals, TexCoords, EmptyColors, Tangents, ERuntimeMeshUpdateFrequency::Infrequent, false);
+	StaticProvider->SetupMaterialSlot(0, TEXT("BIM Material"), Material);
 }
