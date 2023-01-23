@@ -26,7 +26,8 @@ public class BlockModel : ModuleRules
 			new string[]
 			{
 				"Core",
-				"RuntimeMeshComponent"
+				"RuntimeMeshComponent",
+				"HTTP"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

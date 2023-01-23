@@ -7,6 +7,9 @@
 #include "ABlockModelActor.h"
 #include "UBlockModel.generated.h"
 
+// Block model download callback type
+DECLARE_DYNAMIC_DELEGATE(FDownloadDelegate);
+
 USTRUCT(BlueprintType)
 struct FBlock
 {
@@ -56,11 +59,19 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PostprocessBlocks();
 private:
-	// imports block model data
+	// imports block model data over HTTP
+	UFUNCTION(BlueprintCallable)
+	void DownloadBlockModel(FString Path, FVector UTMRef, const FDownloadDelegate& Callback);
+	
+	// imports block model data from disk
 	UFUNCTION(BlueprintCallable)
 	void ImportBlockModel(FString Path, FVector UTMRef);
+	
+	UFUNCTION()
+	void ProcessRows(TArray<FString> Rows, FVector UTMRef);
 	
 	// select a new property and regenerate block RMCs
 	UFUNCTION(BlueprintCallable)
 	void SelectProperty(FString Property);
 };
+
