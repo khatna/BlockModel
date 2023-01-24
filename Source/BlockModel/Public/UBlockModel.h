@@ -39,10 +39,10 @@ public:
 	TArray<FString> Headers;
 
 	// map from column value to RMC block group
+	// TODO: Garbage collect TMap properly
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TMap<FString,ABlockModelActor*> BlockGroups;
-	
-	// Min and max of properties
+
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite)
 	FString SelectedProperty = "";
 
@@ -58,6 +58,10 @@ public:
 	// to blueprints
 	UFUNCTION(BlueprintImplementableEvent)
 	void PostprocessBlocks();
+
+protected:
+	virtual void BeginDestroy() override;
+
 private:
 	// imports block model data over HTTP
 	UFUNCTION(BlueprintCallable)

@@ -14,6 +14,20 @@ void UBlockModel::HideBlockModel()
 	}
 }
 
+void UBlockModel::BeginDestroy()
+{
+	HideBlockModel();
+
+	for (TPair<FString, ABlockModelActor*>& Pair : BlockGroups)
+	{
+		Pair.Value->Destroy();
+	}
+
+	BlockGroups.Empty();
+
+	UObject::BeginDestroy();
+}
+
 void UBlockModel::DownloadBlockModel(FString Path, FVector UTMRef, const FDownloadDelegate& Callback)
 {
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
@@ -135,6 +149,7 @@ void UBlockModel::ProcessRows(TArray<FString> Rows, FVector UTMRef)
 			if (ColName.Equals("y"))
 			{
 				Block.Centroid.X = (FCString::Atod(*Value) - UTMRef.Y) * 100.0f;
+				GEngine->AddOnScreenDebugMessage(0, 30.0f, FColor::Red, Block.Centroid.ToString());
 				continue;
 			}
 			if (ColName.Equals("z"))
@@ -166,5 +181,8 @@ void UBlockModel::ProcessRows(TArray<FString> Rows, FVector UTMRef)
 		
 		Blocks.Add(Block);
 	}
+
+	// select dummy header initially
+	SelectProperty("header");
 }
 
